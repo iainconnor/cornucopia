@@ -1,0 +1,17 @@
+{
+    "name": "iainconnor/cornucopia",
+    "description": "Expanded Annotation processor.",
+    "type": "library",
+    "require": {
+        "doctrine/annotations": "^1.3",
+        "doctrine/cache": "^1.6"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Iain Connor",
+            "email": "iainconnor@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev"
+}
