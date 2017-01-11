@@ -172,7 +172,7 @@ class AnnotationReader implements Reader
 			}
 		}
 
-		AnnotationRegistry::registerFile(MockingJay::getVendorRoot() . '/doctrine/annotations/lib/Doctrine/Common/Annotations/Annotation/IgnoreAnnotation.php');
+		AnnotationRegistry::registerFile(getVendorRoot() . '/doctrine/annotations/lib/Doctrine/Common/Annotations/Annotation/IgnoreAnnotation.php');
 
 		$this->parser = $parser ?: new DocParser();
 
@@ -405,5 +405,22 @@ class AnnotationReader implements Reader
 		);
 
 		$this->ignoredAnnotationNames[$name] = $ignoredAnnotationNames;
+	}
+
+	public static function getProjectRoot() {
+
+		return static::getSrcRoot() . "/..";
+	}
+
+	public static function getSrcRoot() {
+
+		$path = dirname(__FILE__);
+
+		return $path . "/../..";
+	}
+
+	public static function getVendorRoot() {
+
+		return static::getProjectRoot() . "/vendor";
 	}
 }
