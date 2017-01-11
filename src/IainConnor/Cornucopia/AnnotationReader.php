@@ -243,6 +243,7 @@ class AnnotationReader implements Reader
 				foreach ( $results as $key => $result ) {
 					if ( $result instanceof DummyHint ) {
 						$results[$key] = $typeHint;
+						break;
 					}
 				}
 			}
@@ -291,6 +292,7 @@ class AnnotationReader implements Reader
 					foreach ( $results as $key => $result ) {
 						if ( $result instanceof DummyHint ) {
 							$results[$key] = $typeHint;
+							break;
 						}
 					}
 				}

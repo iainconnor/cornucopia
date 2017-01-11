@@ -16,6 +16,7 @@ class Foo {
 
 	/**
 	 * @param $foo array<int> An array of ints.
+	 * @param bar array<string> An array of strings.
 	 */
 	public function dolor(array $foo) {
 
@@ -25,6 +26,7 @@ class Foo {
 $reflectedClass = new \ReflectionClass(Foo::class);
 $reflectedClassInstance = $reflectedClass->newInstance();
 
+\Doctrine\Common\Annotations\AnnotationRegistry::registerAutoloadNamespace('\IainConnor\Cornucopia\Annotations', dirname(__FILE__) . "/src");
 $annotationReader = new \IainConnor\Cornucopia\CachedReader(
 	new \IainConnor\Cornucopia\AnnotationReader(),
 	new \Doctrine\Common\Cache\ArrayCache()
