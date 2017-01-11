@@ -172,7 +172,8 @@ class AnnotationReader implements Reader
 			}
 		}
 
-		AnnotationRegistry::registerFile(static::getVendorRoot() . '/doctrine/annotations/lib/Doctrine/Common/Annotations/Annotation/IgnoreAnnotation.php');
+		$ignoreClass = new ReflectionClass(IgnoreAnnotation::class);
+		AnnotationRegistry::registerFile($ignoreClass->getFileName());
 
 		$this->parser = $parser ?: new DocParser();
 
