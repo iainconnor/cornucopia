@@ -233,7 +233,7 @@ class AnnotationReader implements Reader
 		$results = $this->parser->parse($propertyComment, $context);
 
 		if (false !== strpos($propertyComment, '@var') && preg_match('/@var\s+(.*+)/', $propertyComment, $matches)) {
-			if (false !== $typeHint = TypeHint::parse($matches[1], $propertyImports)) {
+			if (false !== $typeHint = TypeHint::parse($matches[1], $propertyImports, $property->getName())) {
 				$results[] = $typeHint;
 			}
 		}
@@ -266,11 +266,24 @@ class AnnotationReader implements Reader
 		$context = 'method ' . $class->getName() . '::' . $method->getName() . '()';
 
 		$this->parser->setTarget(Target::TARGET_METHOD);
-		$this->parser->setImports($this->getMethodImports($method));
+		$methodImports = $this->getMethodImports($method);
+		$this->parser->setImports($methodImports);
 		$this->parser->setIgnoredAnnotationNames($this->getIgnoredAnnotationNames($class));
 		$this->parser->setIgnoredAnnotationNamespaces(self::$globalIgnoredNamespaces);
 
-		return $this->parser->parse($method->getDocComment(), $context);
+		$methodComment = $method->getDocComment();
+
+		$results = $this->parser->parse($methodComment, $context);
+
+		if (false !== strpos($methodComment, '@param') && preg_match_all('/@param\s+(.*+)/', $methodComment, $matches)) {
+			foreach ( $matches[1] as $match ) {
+				if (false !== $typeHint = TypeHint::parse($match, $methodImports)) {
+					$results[] = $typeHint;
+				}
+			}
+		}
+
+		return $results;
 	}
 
 	/**

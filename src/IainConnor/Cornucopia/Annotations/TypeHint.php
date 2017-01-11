@@ -5,7 +5,7 @@ namespace IainConnor\Cornucopia\Annotations;
 
 
 class TypeHint {
-	
+
 	public static $arrayType = 'array';
 
 	/**
@@ -28,16 +28,23 @@ class TypeHint {
 
 	public $genericType;
 
+	public $description;
+
+	public $variableName;
+
 	/**
 	 * TypeHint constructor.
 	 *
 	 * @param null $baseType
 	 * @param null $genericType
+	 * @param null $description
 	 */
-	public function __construct($baseType, $genericType = null) {
+	public function __construct($baseType, $variableName, $genericType = null, $description = null) {
 
 		$this->baseType = $baseType;
+		$this->variableName = $variableName;
 		$this->genericType = $genericType;
+		$this->description = $description;
 	}
 
 	/**
@@ -45,32 +52,37 @@ class TypeHint {
 	 *
 	 * @param $type
 	 * @param array $imports
+	 * @param null $variableName
 	 * @return bool|TypeHint
 	 */
-	public static function parse($type, array $imports) {
+	public static function parse($type, array $imports, $variableName = null) {
 		$typeInfo = explode(" ", $type);
 
-		$baseType = trim($typeInfo[0]);
+		$typeInfoOffset = 0;
+		if ( $variableName === null ) {
+			$variableName = trim($typeInfo[0]);
+			$typeInfoOffset ++;
+		}
+
+		$baseType = trim($typeInfo[0 + $typeInfoOffset]);
+
+		$description = trim(explode(" ", $type, 2 + $typeInfoOffset)[1 + $typeInfoOffset]);
 		if (false !== $sanitizedBaseType = TypeHint::getSanitizedName($baseType, $imports)) {
 			if ($sanitizedBaseType == TypeHint::$arrayType) {
 				$genericType = null;
 				// Check for [] and <> and array.
 				if (substr($baseType, -2) == TypeHint::$arrayTypeShort) {
 					$genericType = trim(substr($baseType, 0, -2));
-				} else if (preg_match("/array(?:.*?)<(.*?)>/", $type, $matches)) {
+				} else if (preg_match("/array<(.*?)>/", $type, $matches)) {
 					$genericType = trim($matches[1]);
-				} else {
-					$genericType = trim($typeInfo[1]);
 				}
 
 				if (false !== $sanitizedGenericType = TypeHint::getSanitizedName($genericType, $imports)) {
-					return new TypeHint($sanitizedBaseType, $sanitizedGenericType);
-				} else {
-					return new TypeHint($sanitizedBaseType);
+					return new TypeHint($sanitizedBaseType, $variableName, $sanitizedGenericType, $description);
 				}
-			} else {
-				return new TypeHint($sanitizedBaseType);
 			}
+
+			return new TypeHint($sanitizedBaseType, $variableName, null, $description);
 		}
 
 		return false;
@@ -84,23 +96,37 @@ class TypeHint {
 	 * @return bool|string
 	 */
 	private static function getSanitizedName($string, array $imports) {
+		if (is_null($string)) {
+			return false;
+		}
+
 		if (array_key_exists($string, TypeHint::$basicTypes)) {
 			return TypeHint::$basicTypes[$string];
-		} else if ($string == TypeHint::$arrayType) {
+		}
+
+		if ($string == TypeHint::$arrayType) {
 			return TypeHint::$arrayType;
-		} else if (substr($string, -2) == TypeHint::$arrayTypeShort) {
+		}
+
+		if (substr($string, -2) == TypeHint::$arrayTypeShort) {
 			return TypeHint::$arrayType;
-		} else if (preg_match("/array<(.*?)>/", $string, $matches)) {
+		}
+
+		if (preg_match("/array<(.*?)>/", $string, $matches)) {
 			return TypeHint::$arrayType;
-		} else if (class_exists($string, false)) {
+		}
+
+		if (class_exists($string, false)) {
 			return $string;
-		} else if (class_exists($imports['__NAMESPACE__'] . '\\' . $string)) {
+		}
+
+		if (class_exists($imports['__NAMESPACE__'] . '\\' . $string)) {
 			return $imports['__NAMESPACE__'] . '\\' . $string;
-		} else {
-			foreach ($imports as $import) {
-				if (substr($import, strrpos($import, '\\') + 1) == $string) {
-					return $import;
-				}
+		}
+
+		foreach ($imports as $import) {
+			if (substr($import, strrpos($import, '\\') + 1) == $string) {
+				return $import;
 			}
 		}
 
