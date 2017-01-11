@@ -8,6 +8,7 @@ use Doctrine\Common\Annotations\AnnotationRegistry;
 use Doctrine\Common\Annotations\DocParser;
 use Doctrine\Common\Annotations\PhpParser;
 use Doctrine\Common\Annotations\Reader;
+use IainConnor\Cornucopia\Annotations\DummyHint;
 use IainConnor\Cornucopia\Annotations\TypeHint;
 use ReflectionClass;
 use ReflectionMethod;
@@ -22,6 +23,8 @@ class AnnotationReader implements Reader
 	 */
 	private static $globalImports = array(
 		'ignoreannotation' => 'Doctrine\Common\Annotations\Annotation\IgnoreAnnotation',
+		'var' => 'IainConnor\Cornucopia\Annotations\DummyHint',
+		'param' => 'IainConnor\Cornucopia\Annotations\DummyHint'
 	);
 
 	/**
@@ -63,12 +66,12 @@ class AnnotationReader implements Reader
 		'ignore'=> true, /* Can we enable this? 'index' => true, */ 'internal'=> true,
 		'license'=> true, 'link'=> true,
 		'method' => true,
-		'package'=> true, 'param'=> true, 'property' => true, 'property-read' => true, 'property-write' => true,
+		'package'=> true, 'property' => true, 'property-read' => true, 'property-write' => true,
 		'return'=> true,
 		'see'=> true, 'since'=> true, 'source' => true, 'subpackage'=> true,
 		'throws'=> true, 'todo'=> true, 'TODO'=> true,
 		'usedby'=> true, 'uses' => true,
-		'var'=> true, 'version'=> true,
+		'version'=> true,
 		// PHPUnit tags
 		'codeCoverageIgnore' => true, 'codeCoverageIgnoreStart' => true, 'codeCoverageIgnoreEnd' => true,
 		// PHPCheckStyle
@@ -175,6 +178,9 @@ class AnnotationReader implements Reader
 		$ignoreClass = new ReflectionClass(IgnoreAnnotation::class);
 		AnnotationRegistry::registerFile($ignoreClass->getFileName());
 
+		$dummyClass = new ReflectionClass(DummyHint::class);
+		AnnotationRegistry::registerFile($dummyClass->getFileName());
+
 		$this->parser = $parser ?: new DocParser();
 
 		$this->preParser = new DocParser;
@@ -234,7 +240,11 @@ class AnnotationReader implements Reader
 
 		if (false !== strpos($propertyComment, '@var') && preg_match('/@var\s+(.*+)/', $propertyComment, $matches)) {
 			if (false !== $typeHint = TypeHint::parse($matches[1], $propertyImports, $property->getName())) {
-				$results[] = $typeHint;
+				foreach ( $results as $key => $result ) {
+					if ( $result instanceof DummyHint ) {
+						$results[$key] = $typeHint;
+					}
+				}
 			}
 		}
 
@@ -278,7 +288,11 @@ class AnnotationReader implements Reader
 		if (false !== strpos($methodComment, '@param') && preg_match_all('/@param\s+(.*+)/', $methodComment, $matches)) {
 			foreach ( $matches[1] as $match ) {
 				if (false !== $typeHint = TypeHint::parse($match, $methodImports)) {
-					$results[] = $typeHint;
+					foreach ( $results as $key => $result ) {
+						if ( $result instanceof DummyHint ) {
+							$results[$key] = $typeHint;
+						}
+					}
 				}
 			}
 		}
