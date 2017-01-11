@@ -172,7 +172,7 @@ class AnnotationReader implements Reader
 			}
 		}
 
-		AnnotationRegistry::registerFile(getVendorRoot() . '/doctrine/annotations/lib/Doctrine/Common/Annotations/Annotation/IgnoreAnnotation.php');
+		AnnotationRegistry::registerFile(static::getVendorRoot() . '/doctrine/annotations/lib/Doctrine/Common/Annotations/Annotation/IgnoreAnnotation.php');
 
 		$this->parser = $parser ?: new DocParser();
 
