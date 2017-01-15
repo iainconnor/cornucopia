@@ -145,6 +145,42 @@ class CachedReader implements Reader
 	}
 
 	/**
+	 * Retrieves imports.
+	 *
+	 * @param \ReflectionClass $class
+	 *
+	 * @return array
+	 */
+	public function getClassImports(ReflectionClass $class)
+	{
+		return $this->delegate->getClassImports($class);
+	}
+
+	/**
+	 * Retrieves imports for methods.
+	 *
+	 * @param \ReflectionMethod $method
+	 *
+	 * @return array
+	 */
+	public function getMethodImports(ReflectionMethod $method)
+	{
+		return $this->delegate->getMethodImports($method);
+	}
+
+	/**
+	 * Retrieves imports for properties.
+	 *
+	 * @param \ReflectionProperty $property
+	 *
+	 * @return array
+	 */
+	public function getPropertyImports(ReflectionProperty $property)
+	{
+		return $this->delegate->getPropertyImports($property);
+	}
+
+	/**
 	 * Clears loaded annotations.
 	 *
 	 * @return void
