@@ -69,9 +69,9 @@ class TypeHint {
 
 		if ( $variableName === null ) {
 			$variableName = $typeParts[1];
-			$description = $typeParts[2];
+			$description = count($typeParts) == 3 ? $typeParts[2] : null;
 		} else {
-			$description = $typeParts[1];
+			$description = count($typeParts) == 2  ? $typeParts[1] : null;
 		}
 
 		/** @var Type[] $types */
