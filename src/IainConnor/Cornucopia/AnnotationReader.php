@@ -343,7 +343,7 @@ class AnnotationReader implements Reader
 	 *
 	 * @return array
 	 */
-	private function getClassImports(ReflectionClass $class)
+	public function getClassImports(ReflectionClass $class)
 	{
 		if (isset($this->imports[$name = $class->getName()])) {
 			return $this->imports[$name];
@@ -361,7 +361,7 @@ class AnnotationReader implements Reader
 	 *
 	 * @return array
 	 */
-	private function getMethodImports(ReflectionMethod $method)
+	public function getMethodImports(ReflectionMethod $method)
 	{
 		$class = $method->getDeclaringClass();
 		$classImports = $this->getClassImports($class);
@@ -389,7 +389,7 @@ class AnnotationReader implements Reader
 	 *
 	 * @return array
 	 */
-	private function getPropertyImports(ReflectionProperty $property)
+	public function getPropertyImports(ReflectionProperty $property)
 	{
 		$class = $property->getDeclaringClass();
 		$classImports = $this->getClassImports($class);
