@@ -15,9 +15,8 @@ class Foo {
 	public $ipsum;
 
 	/**
-	 * @param $foo array<int> An array of ints.
-	 * @\IainConnor\Cornucopia\Annotations\Testing()
-	 * @param bar null An array of strings.
+	 * @param array<int> $foo An array of ints.
+	 * @param null|string bar A null value.
 	 */
 	public function dolor(array $foo) {
 
