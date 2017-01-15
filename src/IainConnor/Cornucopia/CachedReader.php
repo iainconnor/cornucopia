@@ -163,7 +163,7 @@ class CachedReader implements Reader
 	 *
 	 * @return array
 	 */
-	public function getMethodImports(ReflectionMethod $method)
+	public function getMethodImports(\ReflectionMethod $method)
 	{
 		return $this->delegate->getMethodImports($method);
 	}
@@ -175,7 +175,7 @@ class CachedReader implements Reader
 	 *
 	 * @return array
 	 */
-	public function getPropertyImports(ReflectionProperty $property)
+	public function getPropertyImports(\ReflectionProperty $property)
 	{
 		return $this->delegate->getPropertyImports($property);
 	}
