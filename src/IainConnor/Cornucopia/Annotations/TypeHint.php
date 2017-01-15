@@ -8,6 +8,8 @@ class TypeHint {
 
 	public static $arrayType = 'array';
 
+	private static $arrayTypeShort = '[]';
+
 	/**
 	 * Map of possible names to a sanitized version.
 	 *
@@ -19,12 +21,13 @@ class TypeHint {
 		'integer' => 'int',
 		'float' => 'float',
 		'bool' => 'bool',
-		'boolean' => 'bool'
+		'boolean' => 'bool',
+		'null' => NULL
 	];
+	
+	public $types;
 
-	private static $arrayTypeShort = '[]';
-
-	public $baseType;
+	public $baseType; // @TODO, you left this as needing to support pipes, so this all becomes an array.
 
 	public $genericType;
 

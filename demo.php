@@ -16,7 +16,8 @@ class Foo {
 
 	/**
 	 * @param $foo array<int> An array of ints.
-	 * @param bar array<string> An array of strings.
+	 * @\IainConnor\Cornucopia\Annotations\Testing()
+	 * @param bar null An array of strings.
 	 */
 	public function dolor(array $foo) {
 
