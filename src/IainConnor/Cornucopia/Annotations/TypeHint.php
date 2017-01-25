@@ -102,7 +102,7 @@ class TypeHint {
 
 		if ( count($types) ) {
 
-			return new TypeHint($types, $variableName, $description);
+			return new TypeHint($types, substr($variableName, 1), $description);
 		}
 
 		return false;
