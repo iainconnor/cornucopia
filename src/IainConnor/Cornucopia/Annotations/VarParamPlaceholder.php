@@ -1,15 +1,14 @@
 <?php
 
-
 namespace IainConnor\Cornucopia\Annotations;
 
 
 /**
- * Class DummyHint
+ * Class VarParamPlaceholder
  *
  * @package IainConnor\Cornucopia\Annotations
  * @Annotation
  */
-class DummyHint {
+class VarParamPlaceholder {
 
 }

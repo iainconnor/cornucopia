@@ -52,22 +52,23 @@ class TypeHint {
 		$this->description = $description;
 	}
 
-	/**
-	 * Sanitizes the given type into a known value, if possible, handling checking for arrays.
-	 *
-	 * @param $typeString
-	 * @param array $imports
-	 * @param null $variableName
-	 * @return bool|TypeHint
-	 */
-	public static function parse($typeString, array $imports, $variableName = null) {
+    /**
+     * Sanitizes the given type into a known value, if possible, handling checking for arrays.
+     *
+     * @param string $destinationClass
+     * @param string $typeString
+     * @param array $imports
+     * @param null $variableName
+     * @return bool|TypeHint
+     */
+	public static function parseToInstanceOf($destinationClass, $typeString, array $imports, $variableName = null) {
 		$typeParts = array_map(function($element) {
 			return trim($element);
-		}, explode(" ", $typeString, $variableName === null ? 3 : 2));
+		}, explode(" ", $typeString, $variableName === null && $destinationClass == InputTypeHint::class ? 3 : 2));
 
 		$typeInfoStrings = explode(TypeHint::TYPE_SEPARATOR, $typeParts[0]);
 
-		if ( $variableName === null ) {
+		if ( $variableName === null && $destinationClass == InputTypeHint::class ) {
 			$variableName = $typeParts[1];
 			$description = count($typeParts) == 3 ? $typeParts[2] : null;
 		} else {
@@ -102,7 +103,7 @@ class TypeHint {
 
 		if ( count($types) ) {
 
-			return new TypeHint($types, substr($variableName, 1), $description);
+			return new $destinationClass($types, $destinationClass == OutputTypeHint::class ? null : ltrim($variableName, '$'), $description);
 		}
 
 		return false;

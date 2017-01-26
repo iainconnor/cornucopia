@@ -8,7 +8,10 @@ use Doctrine\Common\Annotations\AnnotationRegistry;
 use Doctrine\Common\Annotations\DocParser;
 use Doctrine\Common\Annotations\PhpParser;
 use Doctrine\Common\Annotations\Reader;
-use IainConnor\Cornucopia\Annotations\DummyHint;
+use IainConnor\Cornucopia\Annotations\InputTypeHint;
+use IainConnor\Cornucopia\Annotations\OutputTypeHint;
+use IainConnor\Cornucopia\Annotations\ReturnPlaceholder;
+use IainConnor\Cornucopia\Annotations\VarParamPlaceholder;
 use IainConnor\Cornucopia\Annotations\TypeHint;
 use ReflectionClass;
 use ReflectionMethod;
@@ -23,8 +26,9 @@ class AnnotationReader implements Reader
 	 */
 	private static $globalImports = array(
 		'ignoreannotation' => 'Doctrine\Common\Annotations\Annotation\IgnoreAnnotation',
-		'var' => 'IainConnor\Cornucopia\Annotations\DummyHint',
-		'param' => 'IainConnor\Cornucopia\Annotations\DummyHint'
+		'var' => 'IainConnor\Cornucopia\Annotations\VarParamPlaceholder',
+		'param' => 'IainConnor\Cornucopia\Annotations\VarParamPlaceholder',
+        'return' => 'IainConnor\Cornucopia\Annotations\ReturnPlaceholder',
 	);
 
 	/**
@@ -67,7 +71,6 @@ class AnnotationReader implements Reader
 		'license'=> true, 'link'=> true,
 		'method' => true,
 		'package'=> true, 'property' => true, 'property-read' => true, 'property-write' => true,
-		'return'=> true,
 		'see'=> true, 'since'=> true, 'source' => true, 'subpackage'=> true,
 		'throws'=> true, 'todo'=> true, 'TODO'=> true,
 		'usedby'=> true, 'uses' => true,
@@ -178,8 +181,11 @@ class AnnotationReader implements Reader
 		$ignoreClass = new ReflectionClass(IgnoreAnnotation::class);
 		AnnotationRegistry::registerFile($ignoreClass->getFileName());
 
-		$dummyClass = new ReflectionClass(DummyHint::class);
+		$dummyClass = new ReflectionClass(VarParamPlaceholder::class);
 		AnnotationRegistry::registerFile($dummyClass->getFileName());
+
+        $dummyClass = new ReflectionClass(ReturnPlaceholder::class);
+        AnnotationRegistry::registerFile($dummyClass->getFileName());
 
 		$this->parser = $parser ?: new DocParser();
 
@@ -239,9 +245,10 @@ class AnnotationReader implements Reader
 		$results = $this->parser->parse($propertyComment, $context);
 
 		if (false !== strpos($propertyComment, '@var') && preg_match('/@var\s+(.*+)/', $propertyComment, $matches)) {
-			if (false !== $typeHint = TypeHint::parse($matches[1], $propertyImports, $property->getName())) {
+			if (false !== $typeHint = TypeHint::parseToInstanceOf(InputTypeHint::class, $matches[1], $propertyImports, $property->getName())) {
 				foreach ( $results as $key => $result ) {
-					if ( $result instanceof DummyHint ) {
+				    // VarParamPlaceholder is used as a placeholder until we replace it with an InputTypeHint.
+					if ( $result instanceof VarParamPlaceholder ) {
 						$results[$key] = $typeHint;
 						break;
 					}
@@ -288,9 +295,10 @@ class AnnotationReader implements Reader
 
 		if (false !== strpos($methodComment, '@param') && preg_match_all('/@param\s+(.*+)/', $methodComment, $matches)) {
 			foreach ( $matches[1] as $match ) {
-				if (false !== $typeHint = TypeHint::parse($match, $methodImports)) {
+				if (false !== $typeHint = TypeHint::parseToInstanceOf(InputTypeHint::class, $match, $methodImports)) {
 					foreach ( $results as $key => $result ) {
-						if ( $result instanceof DummyHint ) {
+                        // VarParamPlaceholder is used as a placeholder until we replace it with a InputTypeHint.
+						if ( $result instanceof VarParamPlaceholder ) {
 							$results[$key] = $typeHint;
 							break;
 						}
@@ -298,6 +306,20 @@ class AnnotationReader implements Reader
 				}
 			}
 		}
+
+        if (false !== strpos($methodComment, '@return') && preg_match_all('/@return\s+(.*+)/', $methodComment, $matches)) {
+            foreach ( $matches[1] as $match ) {
+                if (false !== $typeHint = TypeHint::parseToInstanceOf(OutputTypeHint::class, $match, $methodImports)) {
+                    foreach ( $results as $key => $result ) {
+                        // ReturnPlaceholder is used as a placeholder until we replace it with a OutputTypeHint.
+                        if ( $result instanceof ReturnPlaceholder ) {
+                            $results[$key] = $typeHint;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
 
 		return $results;
 	}

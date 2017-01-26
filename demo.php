@@ -14,12 +14,14 @@ class Foo {
 	 */
 	public $ipsum;
 
-	/**
-	 * @param array<int> $foo An array of ints.
-	 * @param null|string bar A null value.
-	 */
+    /**
+     * @param array <int> $foo An array of ints.
+     * @param null|string bar A null value.
+     *
+     * @return bool|null Some default.
+     */
 	public function dolor(array $foo) {
-
+        return rand(0,1) ? null : true;
 	}
 }
 
