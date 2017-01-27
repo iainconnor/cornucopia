@@ -3,7 +3,7 @@
 namespace IainConnor\Cornucopia\Annotations;
 
 
-class OutputTypeHint extends InputTypeHint
+class OutputTypeHint extends TypeHint
 {
 
 }
