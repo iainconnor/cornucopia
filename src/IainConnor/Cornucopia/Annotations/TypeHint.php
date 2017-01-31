@@ -19,7 +19,7 @@ class TypeHint {
 	 *
 	 * @var array
 	 */
-	private static $basicTypes = [
+	public static $basicTypes = [
 		'string' => 'string',
 		'int' => 'int',
 		'integer' => 'int',
