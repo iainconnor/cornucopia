@@ -75,6 +75,9 @@ class TypeHint {
 			$description = count($typeParts) == 2  ? $typeParts[1] : null;
 		}
 
+        $description = preg_replace("/^(\/\*\s*)/m", "", $description);
+        $description = preg_replace("/(\s*\*\/)$/m", "", $description);
+
 		/** @var Type[] $types */
 		$types = [];
 		foreach ( $typeInfoStrings as $typeInfoString ) {
