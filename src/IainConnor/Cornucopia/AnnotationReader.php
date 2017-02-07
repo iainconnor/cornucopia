@@ -151,13 +151,14 @@ class AnnotationReader implements Reader
 	 */
 	private $ignoredAnnotationNames = array();
 
-	/**
-	 * Constructor.
-	 *
-	 * Initializes a new AnnotationReader.
-	 *
-	 * @param DocParser $parser
-	 */
+    /**
+     * Constructor.
+     *
+     * Initializes a new AnnotationReader.
+     *
+     * @param DocParser $parser
+     * @throws AnnotationException
+     */
 	public function __construct(DocParser $parser = null)
 	{
 		if (extension_loaded('Zend Optimizer+') && (ini_get('zend_optimizerplus.save_comments') === "0" || ini_get('opcache.save_comments') === "0")) {
@@ -233,6 +234,7 @@ class AnnotationReader implements Reader
 	{
 		$class   = $property->getDeclaringClass();
 		$context = 'property ' . $class->getName() . "::\$" . $property->getName();
+		$defaultProperties = $class->getDefaultProperties();
 
 		$this->parser->setTarget(Target::TARGET_PROPERTY);
 		$propertyImports = $this->getPropertyImports($property);
@@ -245,7 +247,7 @@ class AnnotationReader implements Reader
 		$results = $this->parser->parse($propertyComment, $context);
 
 		if (false !== strpos($propertyComment, '@var') && preg_match('/@var\s+(.*+)/', $propertyComment, $matches)) {
-			if (false !== $typeHint = TypeHint::parseToInstanceOf(InputTypeHint::class, $matches[1], $propertyImports, $property->getName())) {
+			if (false !== $typeHint = TypeHint::parseToInstanceOf(InputTypeHint::class, $matches[1], $propertyImports, $property->getName(), array_key_exists($property->getName(), $defaultProperties) ? $defaultProperties[$property->getName()] : null)) {
 				foreach ( $results as $key => $result ) {
 				    // VarParamPlaceholder is used as a placeholder until we replace it with an InputTypeHint.
 					if ( $result instanceof VarParamPlaceholder ) {
@@ -289,6 +291,13 @@ class AnnotationReader implements Reader
 		$this->parser->setIgnoredAnnotationNames($this->getIgnoredAnnotationNames($class));
 		$this->parser->setIgnoredAnnotationNamespaces(self::$globalIgnoredNamespaces);
 
+		$defaultValues = [];
+		foreach ( $method->getParameters() as $parameter ) {
+		    if ( $parameter->isDefaultValueAvailable() && $parameter->getDefaultValue() ) {
+		        $defaultValues[$parameter->getName()] = $parameter->getDefaultValue();
+            }
+        }
+
 		$methodComment = $method->getDocComment();
 
 		$results = $this->parser->parse($methodComment, $context);
@@ -299,6 +308,10 @@ class AnnotationReader implements Reader
 					foreach ( $results as $key => $result ) {
                         // VarParamPlaceholder is used as a placeholder until we replace it with a InputTypeHint.
 						if ( $result instanceof VarParamPlaceholder ) {
+                            if ( array_key_exists($typeHint->variableName, $defaultValues) ) {
+                                $typeHint->defaultValue = $defaultValues[$typeHint->variableName];
+                            }
+
 							$results[$key] = $typeHint;
 							break;
 						}

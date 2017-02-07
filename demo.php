@@ -7,7 +7,7 @@ class Foo {
 	/**
 	 * @var string A string.
 	 */
-	public $lorem;
+	public $lorem = "Hello!";
 
 	/**
 	 * @var string[] An array or strings.

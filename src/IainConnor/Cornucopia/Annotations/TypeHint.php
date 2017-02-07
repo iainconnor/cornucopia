@@ -38,6 +38,8 @@ class TypeHint {
 	/** @var string */
 	public $variableName;
 
+	public $defaultValue;
+
 	/**
 	 * TypeHint constructor.
 	 *
@@ -45,11 +47,12 @@ class TypeHint {
 	 * @param $variableName
 	 * @param null|string $description
 	 */
-	public function __construct(array $types, $variableName, $description = null) {
+	public function __construct(array $types, $variableName, $description = null, $defaultValue = null) {
 
 		$this->types = $types;
 		$this->variableName = $variableName;
 		$this->description = $description;
+		$this->defaultValue = $defaultValue;
 	}
 
     /**
@@ -61,7 +64,7 @@ class TypeHint {
      * @param null $variableName
      * @return bool|TypeHint
      */
-	public static function parseToInstanceOf($destinationClass, $typeString, array $imports, $variableName = null) {
+	public static function parseToInstanceOf($destinationClass, $typeString, array $imports, $variableName = null, $defaultValue = null) {
 		$typeParts = array_map(function($element) {
 			return trim($element);
 		}, explode(" ", $typeString, $variableName === null && $destinationClass == InputTypeHint::class ? 3 : 2));
@@ -106,7 +109,7 @@ class TypeHint {
 
 		if ( count($types) ) {
 
-			return new $destinationClass($types, $destinationClass == OutputTypeHint::class ? null : ltrim($variableName, '$'), $description);
+			return new $destinationClass($types, $destinationClass == OutputTypeHint::class ? null : ltrim($variableName, '$'), $description, $defaultValue);
 		}
 
 		return false;
