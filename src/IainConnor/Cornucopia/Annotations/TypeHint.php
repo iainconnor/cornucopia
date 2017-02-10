@@ -150,18 +150,18 @@ class TypeHint {
 
 		if (class_exists($string, false)) {
 
-			return $string;
+			return ltrim($string, '\\');
 		}
 
 		if (class_exists($imports['__NAMESPACE__'] . '\\' . $string)) {
 
-			return $imports['__NAMESPACE__'] . '\\' . $string;
+			return ltrim($imports['__NAMESPACE__'] . '\\' . $string, '\\');
 		}
 
 		foreach ($imports as $import) {
 			if (substr($import, strrpos($import, '\\') + 1) == $string) {
 
-				return $import;
+				return ltrim($import, '\\');
 			}
 		}
 
