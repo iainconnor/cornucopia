@@ -67,9 +67,9 @@ class TypeHint {
 	public static function parseToInstanceOf($destinationClass, $typeString, array $imports, $variableName = null, $defaultValue = null) {
 		$typeParts = array_map(function($element) {
 			return trim($element);
-		}, explode(" ", $typeString, $variableName === null && $destinationClass == InputTypeHint::class ? 3 : 2));
+        }, preg_split('/\s+/', $typeString, $variableName === null && $destinationClass == InputTypeHint::class ? 3 : 2, PREG_SPLIT_NO_EMPTY));
 
-		$typeInfoStrings = explode(TypeHint::TYPE_SEPARATOR, $typeParts[0]);
+        $typeInfoStrings = preg_split('/\s*' . preg_quote(TypeHint::TYPE_SEPARATOR, '/') . '\s*/', $typeParts[0], null, PREG_SPLIT_NO_EMPTY);
 
 		if ( $variableName === null && $destinationClass == InputTypeHint::class ) {
 			$variableName = $typeParts[1];
