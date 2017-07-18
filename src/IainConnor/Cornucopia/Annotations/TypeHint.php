@@ -62,9 +62,12 @@ class TypeHint {
      * @param string $typeString
      * @param array $imports
      * @param null $variableName
+     * @param null $defaultValue
+     * @param string[] $ignoredTypes
      * @return bool|TypeHint
      */
-	public static function parseToInstanceOf($destinationClass, $typeString, array $imports, $variableName = null, $defaultValue = null) {
+    public static function parseToInstanceOf($destinationClass, $typeString, array $imports, $variableName = null, $defaultValue = null, array $ignoredTypes = [])
+    {
 		$typeParts = array_map(function($element) {
 			return trim($element);
         }, preg_split('/\s+/', $typeString, $variableName === null && $destinationClass == InputTypeHint::class ? 3 : 2, PREG_SPLIT_NO_EMPTY));
@@ -103,7 +106,9 @@ class TypeHint {
 					}
 				}
 
-				$types[] = $type;
+                if (array_search($type->type, $ignoredTypes) === false && array_search($type->genericType, $ignoredTypes) === false) {
+                    $types[] = $type;
+                }
 			}
 		}
 
