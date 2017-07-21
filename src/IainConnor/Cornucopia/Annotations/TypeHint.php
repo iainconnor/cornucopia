@@ -89,26 +89,40 @@ class TypeHint {
 		$types = [];
 		foreach ( $typeInfoStrings as $typeInfoString ) {
 			if ( false !== $sanitizedBaseType = TypeHint::getSanitizedName($typeInfoString, $imports) ) {
-				$type = new Type();
-				$type->type = $sanitizedBaseType;
+                if ($sanitizedBaseType == 'mixed') {
+                    foreach (array_unique(TypeHint::$basicTypes) as $uniqueBasicType) {
+                        if ($uniqueBasicType != 'mixed') {
+                            $type = new Type();
+                            $type->type = $uniqueBasicType;
+                            $types[] = $type;
+                        }
+                    }
 
-				if ($sanitizedBaseType == TypeHint::ARRAY_TYPE) {
-					$genericType = null;
-
-					// Check for array generic type indicators.
-					if (substr($typeInfoString, -2) == TypeHint::ARRAY_TYPE_SHORT) {
-						$genericType = trim(substr($typeInfoString, 0, -2));
-					} else if (preg_match("/array<(.*?)>/", $typeString, $matches)) {
-						$genericType = trim($matches[1]);
-					}
-
-					if (false !== $sanitizedGenericType = TypeHint::getSanitizedName($genericType, $imports)) {
-						$type->genericType = $sanitizedGenericType;
-					}
-				}
-
-                if (array_search($type->type, $ignoredTypes) === false && array_search($type->genericType, $ignoredTypes) === false) {
+                    $type = new Type();
+                    $type->type = TypeHint::ARRAY_TYPE;
                     $types[] = $type;
+                } else {
+                    $type = new Type();
+                    $type->type = $sanitizedBaseType;
+
+                    if ($sanitizedBaseType == TypeHint::ARRAY_TYPE) {
+                        $genericType = null;
+
+                        // Check for array generic type indicators.
+                        if (substr($typeInfoString, -2) == TypeHint::ARRAY_TYPE_SHORT) {
+                            $genericType = trim(substr($typeInfoString, 0, -2));
+                        } else if (preg_match("/array<(.*?)>/", $typeString, $matches)) {
+                            $genericType = trim($matches[1]);
+                        }
+
+                        if (false !== $sanitizedGenericType = TypeHint::getSanitizedName($genericType, $imports)) {
+                            $type->genericType = $sanitizedGenericType;
+                        }
+                    }
+
+                    if (array_search($type->type, $ignoredTypes) === false && array_search($type->genericType, $ignoredTypes) === false) {
+                        $types[] = $type;
+                    }
                 }
 			}
 		}
