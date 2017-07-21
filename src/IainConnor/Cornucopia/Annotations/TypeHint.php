@@ -26,7 +26,8 @@ class TypeHint {
 		'float' => 'float',
 		'bool' => 'bool',
 		'boolean' => 'bool',
-		'null' => NULL
+        'null' => NULL,
+        'mixed' => 'mixed'
 	];
 
 	/** @var Type[] */
