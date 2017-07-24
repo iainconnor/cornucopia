@@ -189,4 +189,17 @@ class TypeHint {
 
 		return false;
 	}
+
+    /**
+     * Returns developer readable typehint.
+     * @return string
+     */
+    public function __toString()
+    {
+        return join(TypeHint::TYPE_SEPARATOR, array_map(function (Type $type) {
+            return (string)$type;
+        }, $this->types));
+    }
+
+
 }
