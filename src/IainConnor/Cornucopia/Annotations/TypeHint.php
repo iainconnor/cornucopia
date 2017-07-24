@@ -6,57 +6,59 @@ namespace IainConnor\Cornucopia\Annotations;
 
 use IainConnor\Cornucopia\Type;
 
-class TypeHint {
+class TypeHint
+{
 
-	const ARRAY_TYPE = 'array';
+    const ARRAY_TYPE = 'array';
 
-	const ARRAY_TYPE_SHORT = '[]';
+    const ARRAY_TYPE_SHORT = '[]';
 
     const NULL_TYPE = 'null';
 
-	const TYPE_SEPARATOR = '|';
+    const TYPE_SEPARATOR = '|';
 
-	/**
-	 * Map of possible names to a sanitized version.
-	 *
-	 * @var array
-	 */
-	public static $basicTypes = [
-		'string' => 'string',
-		'int' => 'int',
-		'integer' => 'int',
-		'float' => 'float',
-		'bool' => 'bool',
-		'boolean' => 'bool',
+    /**
+     * Map of possible names to a sanitized version.
+     *
+     * @var array
+     */
+    public static $basicTypes = [
+        'string' => 'string',
+        'int' => 'int',
+        'integer' => 'int',
+        'float' => 'float',
+        'bool' => 'bool',
+        'boolean' => 'bool',
         TypeHint::NULL_TYPE => NULL,
         'mixed' => 'mixed'
-	];
+    ];
 
-	/** @var Type[] */
-	public $types;
+    /** @var Type[] */
+    public $types;
 
-	/** @var string|null */
-	public $description;
+    /** @var string|null */
+    public $description;
 
-	/** @var string */
-	public $variableName;
+    /** @var string */
+    public $variableName;
 
-	public $defaultValue;
+    public $defaultValue;
 
-	/**
-	 * TypeHint constructor.
-	 *
-	 * @param Type[] $types
-	 * @param $variableName
-	 * @param null|string $description
-	 */
-	public function __construct(array $types, $variableName, $description = null, $defaultValue = null) {
+    /**
+     * TypeHint constructor.
+     *
+     * @param Type[] $types
+     * @param $variableName
+     * @param null|string $description
+     */
+    public function __construct(array $types, $variableName, $description = null, $defaultValue = null)
+    {
 
-		$this->types = $types;
-		$this->variableName = $variableName;
-		$this->description = $description;
-		$this->defaultValue = $defaultValue;
-	}
+        $this->types = $types;
+        $this->variableName = $variableName;
+        $this->description = $description;
+        $this->defaultValue = $defaultValue;
+    }
 
     /**
      * Sanitizes the given type into a known value, if possible, handling checking for arrays.
@@ -71,26 +73,26 @@ class TypeHint {
      */
     public static function parseToInstanceOf($destinationClass, $typeString, array $imports, $variableName = null, $defaultValue = null, array $ignoredTypes = [])
     {
-		$typeParts = array_map(function($element) {
-			return trim($element);
+        $typeParts = array_map(function ($element) {
+            return trim($element);
         }, preg_split('/\s+/', $typeString, $variableName === null && $destinationClass == InputTypeHint::class ? 3 : 2, PREG_SPLIT_NO_EMPTY));
 
         $typeInfoStrings = preg_split('/\s*' . preg_quote(TypeHint::TYPE_SEPARATOR, '/') . '\s*/', $typeParts[0], null, PREG_SPLIT_NO_EMPTY);
 
-		if ( $variableName === null && $destinationClass == InputTypeHint::class ) {
-			$variableName = $typeParts[1];
-			$description = count($typeParts) == 3 ? $typeParts[2] : null;
-		} else {
-			$description = count($typeParts) == 2  ? $typeParts[1] : null;
-		}
+        if ($variableName === null && $destinationClass == InputTypeHint::class) {
+            $variableName = $typeParts[1];
+            $description = count($typeParts) == 3 ? $typeParts[2] : null;
+        } else {
+            $description = count($typeParts) == 2 ? $typeParts[1] : null;
+        }
 
         $description = preg_replace("/^(\/\*\s*)/m", "", $description);
         $description = preg_replace("/(\s*\*\/)$/m", "", $description);
 
-		/** @var Type[] $types */
-		$types = [];
-		foreach ( $typeInfoStrings as $typeInfoString ) {
-			if ( false !== $sanitizedBaseType = TypeHint::getSanitizedName($typeInfoString, $imports) ) {
+        /** @var Type[] $types */
+        $types = [];
+        foreach ($typeInfoStrings as $typeInfoString) {
+            if (false !== $sanitizedBaseType = TypeHint::getSanitizedName($typeInfoString, $imports)) {
                 if ($sanitizedBaseType == 'mixed') {
                     foreach (array_unique(TypeHint::$basicTypes) as $uniqueBasicType) {
                         if ($uniqueBasicType != 'mixed') {
@@ -126,69 +128,70 @@ class TypeHint {
                         $types[] = $type;
                     }
                 }
-			}
-		}
+            }
+        }
 
-		if ( count($types) ) {
+        if (count($types)) {
 
-			return new $destinationClass($types, $destinationClass == OutputTypeHint::class ? null : ltrim($variableName, '$'), $description, $defaultValue);
-		}
+            return new $destinationClass($types, $destinationClass == OutputTypeHint::class ? null : ltrim($variableName, '$'), $description, $defaultValue);
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	/**
-	 * Sanitizes the given type string into a known value, if possible.
-	 *
-	 * @param $string
-	 * @param array $imports
-	 * @return bool|string
-	 */
-	private static function getSanitizedName($string, array $imports) {
-		if (is_null($string)) {
+    /**
+     * Sanitizes the given type string into a known value, if possible.
+     *
+     * @param $string
+     * @param array $imports
+     * @return bool|string
+     */
+    private static function getSanitizedName($string, array $imports)
+    {
+        if (is_null($string)) {
 
-			return false;
-		}
+            return false;
+        }
 
-		if (array_key_exists($string, TypeHint::$basicTypes)) {
+        if (array_key_exists($string, TypeHint::$basicTypes)) {
 
-			return TypeHint::$basicTypes[$string];
-		}
+            return TypeHint::$basicTypes[$string];
+        }
 
-		if ($string == TypeHint::ARRAY_TYPE) {
+        if ($string == TypeHint::ARRAY_TYPE) {
 
-			return TypeHint::ARRAY_TYPE;
-		}
+            return TypeHint::ARRAY_TYPE;
+        }
 
-		if (substr($string, -2) == TypeHint::ARRAY_TYPE_SHORT) {
+        if (substr($string, -2) == TypeHint::ARRAY_TYPE_SHORT) {
 
-			return TypeHint::ARRAY_TYPE;
-		}
+            return TypeHint::ARRAY_TYPE;
+        }
 
-		if (preg_match("/array<(.*?)>/", $string, $matches)) {
+        if (preg_match("/array<(.*?)>/", $string, $matches)) {
 
-			return TypeHint::ARRAY_TYPE;
-		}
+            return TypeHint::ARRAY_TYPE;
+        }
 
-		if (class_exists($string, false)) {
+        if (class_exists($string, false)) {
 
-			return ltrim($string, '\\');
-		}
+            return ltrim($string, '\\');
+        }
 
-		if (class_exists($imports['__NAMESPACE__'] . '\\' . $string)) {
+        if (class_exists($imports['__NAMESPACE__'] . '\\' . $string)) {
 
-			return ltrim($imports['__NAMESPACE__'] . '\\' . $string, '\\');
-		}
+            return ltrim($imports['__NAMESPACE__'] . '\\' . $string, '\\');
+        }
 
-		foreach ($imports as $import) {
-			if (substr($import, strrpos($import, '\\') + 1) == $string) {
+        foreach ($imports as $import) {
+            if (substr($import, strrpos($import, '\\') + 1) == $string) {
 
-				return ltrim($import, '\\');
-			}
-		}
+                return ltrim($import, '\\');
+            }
+        }
 
-		return false;
-	}
+        return false;
+    }
 
     /**
      * Returns developer readable typehint.
@@ -196,6 +199,10 @@ class TypeHint {
      */
     public function __toString()
     {
+        if (empty($this->types)) {
+            return TypeHint::NULL_TYPE;
+        }
+
         return join(TypeHint::TYPE_SEPARATOR, array_map(function (Type $type) {
             return (string)$type;
         }, $this->types));
