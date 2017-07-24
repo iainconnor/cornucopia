@@ -12,6 +12,8 @@ class TypeHint {
 
 	const ARRAY_TYPE_SHORT = '[]';
 
+    const NULL_TYPE = 'null';
+
 	const TYPE_SEPARATOR = '|';
 
 	/**
@@ -26,7 +28,7 @@ class TypeHint {
 		'float' => 'float',
 		'bool' => 'bool',
 		'boolean' => 'bool',
-        'null' => NULL,
+        TypeHint::NULL_TYPE => NULL,
         'mixed' => 'mixed'
 	];
 
