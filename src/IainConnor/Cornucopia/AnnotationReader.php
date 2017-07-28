@@ -435,31 +435,37 @@ class AnnotationReader implements Reader
 
 		if (false !== strpos($methodComment, '@param') && preg_match_all('/@param\s+(.*+)/', $methodComment, $matches)) {
 			foreach ( $matches[1] as $match ) {
-                if (false !== $typeHint = TypeHint::parseToInstanceOf(InputTypeHint::class, $match, $methodImports, null, null, $this->ignoredInputTypes)) {
-					foreach ( $results as $key => $result ) {
-                        // VarParamPlaceholder is used as a placeholder until we replace it with a InputTypeHint.
-						if ( $result instanceof VarParamPlaceholder ) {
-                            if ( array_key_exists($typeHint->variableName, $defaultValues) ) {
+                $typeHint = TypeHint::parseToInstanceOf(InputTypeHint::class, $match, $methodImports, null, null, $this->ignoredInputTypes);
+                foreach ($results as $key => $result) {
+                    // VarParamPlaceholder is used as a placeholder until we replace it with a InputTypeHint.
+                    if ($result instanceof VarParamPlaceholder) {
+                        if ($typeHint === false) {
+                            unset($results[$key]);
+                        } else {
+                            if (array_key_exists($typeHint->variableName, $defaultValues)) {
                                 $typeHint->defaultValue = $defaultValues[$typeHint->variableName];
                             }
 
-							$results[$key] = $typeHint;
-							break;
-						}
-					}
-				}
+                            $results[$key] = $typeHint;
+                        }
+                        break;
+                    }
+                }
 			}
 		}
 
         if (false !== strpos($methodComment, '@return') && preg_match_all('/@return\s+(.*+)/', $methodComment, $matches)) {
             foreach ( $matches[1] as $match ) {
-                if (false !== $typeHint = TypeHint::parseToInstanceOf(OutputTypeHint::class, $match, $methodImports, null, null, $this->ignoredOutputTypes)) {
-                    foreach ( $results as $key => $result ) {
-                        // ReturnPlaceholder is used as a placeholder until we replace it with a OutputTypeHint.
-                        if ( $result instanceof ReturnPlaceholder ) {
+                $typeHint = TypeHint::parseToInstanceOf(OutputTypeHint::class, $match, $methodImports, null, null, $this->ignoredOutputTypes);
+                foreach ($results as $key => $result) {
+                    // ReturnPlaceholder is used as a placeholder until we replace it with a OutputTypeHint.
+                    if ($result instanceof ReturnPlaceholder) {
+                        if ($typeHint === false) {
+                            unset($results[$key]);
+                        } else {
                             $results[$key] = $typeHint;
-                            break;
                         }
+                        break;
                     }
                 }
             }
