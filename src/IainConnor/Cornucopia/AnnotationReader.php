@@ -424,7 +424,7 @@ class AnnotationReader implements Reader
 
 		$defaultValues = [];
 		foreach ( $method->getParameters() as $parameter ) {
-		    if ( $parameter->isDefaultValueAvailable() && $parameter->getDefaultValue() ) {
+            if ($parameter->isDefaultValueAvailable()) {
 		        $defaultValues[$parameter->getName()] = $parameter->getDefaultValue();
             }
         }
