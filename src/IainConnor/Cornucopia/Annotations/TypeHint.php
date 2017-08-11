@@ -27,6 +27,7 @@ class TypeHint
         'int' => 'int',
         'integer' => 'int',
         'float' => 'float',
+        'double' => 'float',
         'bool' => 'bool',
         'boolean' => 'bool',
         TypeHint::NULL_TYPE => NULL,
