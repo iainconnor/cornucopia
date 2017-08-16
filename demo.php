@@ -18,7 +18,8 @@ class Foo {
      * @param array <int> $foo An array of ints.
      * @param null|string bar A null value.
      *
-     * @return bool|null Some default.
+     * @return bool|null    Some default with a really
+     *                      long multi-line description.
      */
 	public function dolor(array $foo) {
         return rand(0,1) ? null : true;
