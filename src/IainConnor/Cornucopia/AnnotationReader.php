@@ -431,13 +431,14 @@ class AnnotationReader implements Reader
             }
         }
 
+        $methodComment = $method->getDocComment();
 
-        if (preg_match_all("/^[\t ]*\*[\t ]*(.+[^\/])$/m", $method->getDocComment(), $matches)) {
-            $methodComment = join(PHP_EOL, $matches[1]);
+        if (preg_match_all("/^[\t ]*\*[\t ]*(.+[^\/])$/m", $methodComment, $matches)) {
+            $parsedComment = join(PHP_EOL, $matches[1]);
 
             $results = $this->parser->parse($methodComment, $context);
 
-            if (false !== strpos($methodComment, '@param') && preg_match_all("/^@param\s+(.*?)(?:^(?=@)|\z)/sm", $methodComment, $matches)) {
+            if (false !== strpos($parsedComment, '@param') && preg_match_all("/^@param\s+(.*?)(?:^(?=@)|\z)/sm", $parsedComment, $matches)) {
                 foreach ($matches[1] as $match) {
                     $typeHint = TypeHint::parseToInstanceOf(InputTypeHint::class, $match, $methodImports, null, null, $this->ignoredInputTypes);
                     foreach ($results as $key => $result) {
@@ -458,7 +459,7 @@ class AnnotationReader implements Reader
                 }
             }
 
-            if (false !== strpos($methodComment, '@return') && preg_match_all("/^@return\s+(.*?)(?:^(?=@)|\z)/sm", $methodComment, $matches)) {
+            if (false !== strpos($parsedComment, '@return') && preg_match_all("/^@return\s+(.*?)(?:^(?=@)|\z)/sm", $parsedComment, $matches)) {
                 foreach ($matches[1] as $match) {
                     $typeHint = TypeHint::parseToInstanceOf(OutputTypeHint::class, $match, $methodImports, null, null, $this->ignoredOutputTypes);
                     foreach ($results as $key => $result) {
@@ -474,9 +475,11 @@ class AnnotationReader implements Reader
                     }
                 }
             }
+
+            return $results;
         }
 
-        return $results;
+        return [];
     }
 
     /**
